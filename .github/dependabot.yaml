@@ -1,0 +1,21 @@
+version: 2
+cooldown:
+      default-days: 7
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      ci-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      javascript-dependencies:
+        patterns:
+          - "*"
