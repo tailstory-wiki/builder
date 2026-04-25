@@ -65,6 +65,7 @@ jobs:
         env:
           WIKI_INPUT_DIR: ${{ github.workspace }}/content/${{ inputs.content_path }}
           WIKI_OUTPUT_DIR: ${{ github.workspace }}/_site
+          WIKI_DOCS_SHA: ${{ github.sha }}
         run: npx eleventy
 
       - name: Upload build artifact

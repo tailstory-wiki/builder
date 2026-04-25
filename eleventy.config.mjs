@@ -7,6 +7,10 @@ export default function (eleventyConfig) {
         typographer: false,
     }));
 
+    const docsSha = process.env.WIKI_DOCS_SHA || "";
+    eleventyConfig.addGlobalData("docsSha", docsSha);
+    eleventyConfig.addGlobalData("docsShaShort", docsSha ? docsSha.slice(0, 7) : "");
+
     return {
         dir: {
             input: process.env.WIKI_INPUT_DIR || "docs",
