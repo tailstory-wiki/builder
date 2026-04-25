@@ -1,0 +1,12 @@
+{
+    "name": "@tailstory-wiki/builder",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "eleventy"
+    },
+    "devDependencies": {
+        "@11ty/eleventy": "^3.1.5",
+        "markdown-it": "^14.1.1"
+    }
+}
