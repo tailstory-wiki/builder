@@ -56,6 +56,9 @@ jobs:
         working-directory: builder
         run: npm ci
 
+      - name: Link layouts into content
+        run: ln -s "$GITHUB_WORKSPACE/builder/_includes" "$GITHUB_WORKSPACE/content/${{ inputs.content_path }}/_includes"
+
       - name: Run Eleventy
         working-directory: builder
         env:
