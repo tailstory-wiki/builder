@@ -1,3 +1,8 @@
 <article class="doc-content">
 {{ content | safe }}
+{% if docsSha %}
+<footer class="doc-meta">
+<small>Source commit <code title="{{ docsSha }}">{{ docsShaShort }}</code></small>
+</footer>
+{% endif %}
 </article>
