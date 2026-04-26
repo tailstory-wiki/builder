@@ -1,8 +1,14 @@
 <article class="doc-content">
-{{ content | safe }}
-{% if docsSha %}
-<footer class="doc-meta">
-<small>Source commit <code title="{{ docsSha }}">{{ docsShaShort }}</code></small>
-</footer>
+{% set editLink = page.inputPath | editUrl %}
+{% set updatedAt = page.inputPath | lastUpdated %}
+{% if title or editLink %}
+<header class="doc-header">
+{% if title %}<h1 class="doc-title">{{ title }}</h1>{% endif %}
+{% if editLink %}<a class="doc-edit" href="{{ editLink }}" rel="nofollow noopener">Edit on GitHub</a>{% endif %}
+</header>
 {% endif %}
+{% if updatedAt %}
+<p class="doc-updated"><small>Last updated <time datetime="{{ updatedAt }}">{{ updatedAt | formatDate }}</time></small></p>
+{% endif %}
+{{ content | safe }}
 </article>
