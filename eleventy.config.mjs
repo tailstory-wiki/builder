@@ -22,7 +22,7 @@ export default function (eleventyConfig) {
         if (!docsRepo || !inputPath) return "";
         const rel = relativeFromInput(inputPath);
         const repoPath = docsPath ? `${docsPath}/${rel}` : rel;
-        return `https://github.com/${docsRepo}/edit/${docsRef}/${repoPath}`;
+        return `https://github.com/${docsRepo}/blob/${docsRef}/${repoPath}`;
     });
 
     eleventyConfig.addFilter("lastUpdated", (inputPath) => {
