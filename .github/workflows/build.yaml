@@ -58,6 +58,17 @@ jobs:
         working-directory: builder
         run: npm ci
 
+      - name: Install yq
+        env:
+          YQ_VERSION: v4.45.1
+          YQ_SHA256: 654d2943ca1d3be2024089eb4f270f4070f491a0610481d128509b2834870049
+        run: |
+          set -euo pipefail
+          curl -fsSL -o /tmp/yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64"
+          echo "${YQ_SHA256}  /tmp/yq" | sha256sum -c -
+          sudo install -m 0755 /tmp/yq /usr/local/bin/yq
+          yq --version
+
       - name: Link layouts into content
         run: ln -s "$GITHUB_WORKSPACE/builder/_includes" "$GITHUB_WORKSPACE/content/${{ inputs.content_path }}/_includes"
 
@@ -70,6 +81,29 @@ jobs:
           WIKI_DOCS_REF: ${{ github.ref_name }}
           WIKI_DOCS_PATH: ${{ inputs.content_path }}
         run: npx eleventy
+
+      - name: Build TOCs
+        working-directory: builder
+        env:
+          CONTENT_DIR: ${{ github.workspace }}/content/${{ inputs.content_path }}
+          OUT_DIR: ${{ github.workspace }}/_site
+          SCHEMA: ${{ github.workspace }}/builder/toc-schema.json
+        run: |
+          set -euo pipefail
+          count=0
+          while IFS= read -r -d '' src; do
+            rel="$(dirname "${src#"$CONTENT_DIR"/}")"
+            [ "$rel" = "." ] && rel=""
+            dest="$OUT_DIR${rel:+/$rel}/toc.json"
+            mkdir -p "$(dirname "$dest")"
+            yq -o=json '.' "$src" > "$dest"
+            npx --no-install ajv validate -s "$SCHEMA" -d "$dest" --strict=true
+            count=$((count + 1))
+            echo "Built $dest"
+          done < <(find "$CONTENT_DIR" -type f -name 'toc.yaml' -print0)
+          if [ "$count" -eq 0 ]; then
+            echo "::warning::no toc.yaml files found under $CONTENT_DIR"
+          fi
 
       - name: Upload build artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
