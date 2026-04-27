@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://tailstory.wiki/toc-schema.json",
     "title": "Tailstory wiki TOC",
     "type": "object",
@@ -11,13 +11,13 @@
             "minItems": 1,
             "items": {
                 "oneOf": [
-                    { "$ref": "#/definitions/leaf" },
-                    { "$ref": "#/definitions/section" }
+                    { "$ref": "#/$defs/leaf" },
+                    { "$ref": "#/$defs/section" }
                 ]
             }
         }
     },
-    "definitions": {
+    "$defs": {
         "slug": {
             "type": "string",
             "pattern": "^[a-z0-9][a-z0-9-/]*$"
@@ -28,7 +28,7 @@
             "required": ["title", "page"],
             "properties": {
                 "title": { "type": "string", "minLength": 1 },
-                "page": { "$ref": "#/definitions/slug" }
+                "page": { "$ref": "#/$defs/slug" }
             }
         },
         "section": {
@@ -40,7 +40,7 @@
                 "pages": {
                     "type": "array",
                     "minItems": 1,
-                    "items": { "$ref": "#/definitions/leaf" }
+                    "items": { "$ref": "#/$defs/leaf" }
                 }
             }
         }
