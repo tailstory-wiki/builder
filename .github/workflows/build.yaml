@@ -6,13 +6,23 @@ on:
       vendor:
         required: true
         type: string
+      vendor_name:
+        required: true
+        type: string
       product:
+        required: true
+        type: string
+      product_name:
         required: true
         type: string
       content_path:
         required: false
         type: string
         default: "docs"
+      registry_url:
+        required: false
+        type: string
+        default: "https://wiki.tailstory.dev/api/registry"
     secrets:
       R2_ACCOUNT_ID:
         required: true
@@ -21,6 +31,8 @@ on:
       R2_ACCESS_KEY_ID:
         required: true
       R2_SECRET_ACCESS_KEY:
+        required: true
+      WIKI_REGISTRY_TOKEN:
         required: true
 
 permissions: {}
@@ -111,3 +123,33 @@ jobs:
           aws s3 sync _site/ s3://$R2_BUCKET/$VENDOR/$PRODUCT/ \
             --endpoint-url https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com \
             --delete
+
+  register:
+    name: Register vendor/product
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: POST to /api/registry
+        env:
+          REGISTRY_URL: ${{ inputs.registry_url }}
+          REGISTRY_TOKEN: ${{ secrets.WIKI_REGISTRY_TOKEN }}
+          VENDOR_SLUG: ${{ inputs.vendor }}
+          VENDOR_NAME: ${{ inputs.vendor_name }}
+          PRODUCT_SLUG: ${{ inputs.product }}
+          PRODUCT_NAME: ${{ inputs.product_name }}
+        run: |
+          payload=$(jq -nc \
+            --arg vs "$VENDOR_SLUG" \
+            --arg vn "$VENDOR_NAME" \
+            --arg ps "$PRODUCT_SLUG" \
+            --arg pn "$PRODUCT_NAME" \
+            '{vendor: {slug: $vs, name: $vn}, product: {slug: $ps, name: $pn}}')
+          status=$(curl -sS -o response.txt -w "%{http_code}" \
+            -X POST "$REGISTRY_URL" \
+            -H "Authorization: Bearer $REGISTRY_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data-raw "$payload")
+          echo "HTTP $status"
+          cat response.txt
+          test "$status" = "200"
