@@ -3,11 +3,13 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "eleventy"
+        "build": "eleventy",
+        "build:tocs": "node scripts/build-tocs.mjs"
     },
     "devDependencies": {
         "@11ty/eleventy": "^3.1.5",
-        "ajv-cli": "^5.0.0",
-        "markdown-it": "^14.1.1"
+        "@hyperjump/json-schema": "^1.17.6",
+        "markdown-it": "^14.1.1",
+        "yaml": "^2.8.3"
     }
 }
