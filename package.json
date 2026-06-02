@@ -9,7 +9,7 @@
     "devDependencies": {
         "@11ty/eleventy": "^3.1.5",
         "@hyperjump/json-schema": "^1.17.6",
-        "markdown-it": "^14.1.1",
-        "yaml": "^2.8.3"
+        "markdown-it": "^14.2.0",
+        "yaml": "^2.9.0"
     }
 }
