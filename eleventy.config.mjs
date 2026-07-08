@@ -44,13 +44,13 @@ export default function (eleventyConfig) {
         }
     });
 
-    // "ms.topic" is a literal dotted frontmatter key (MS Learn convention);
-    // Nunjucks cannot reference a dotted variable name, so expose the value
-    // to layouts as `pageTopic`. The outer function is required: addGlobalData
-    // invokes function values once at config time, and only the returned
-    // callback becomes the per-page computed value.
+    // "tsy.topic" is a literal dotted frontmatter key; Nunjucks cannot
+    // reference a dotted variable name, so expose the value to layouts as
+    // `pageTopic`. The outer function is required: addGlobalData invokes
+    // function values once at config time, and only the returned callback
+    // becomes the per-page computed value.
     eleventyConfig.addGlobalData("eleventyComputed.pageTopic", () => {
-        return (data) => data["ms.topic"] ?? "";
+        return (data) => data["tsy.topic"] ?? "";
     });
 
     // Card groups for landing.njk: the current directory's toc.yaml entries,

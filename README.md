@@ -15,13 +15,13 @@ Build tool for rendering Markdown to HTML partials.
 ## Frontmatter
 
 Besides Eleventy's `layout` and the `title`/`description` keys, pages may set
-`ms.topic` (MS Learn convention). Both layouts stamp the value onto the partial's
-root element as `data-ms-topic`, and the worker styles pages by it:
+`tsy.topic`. Both layouts stamp the value onto the partial's root element as
+`data-tsy-topic`, and the worker styles pages by it:
 
 - `hub-page` — the worker hides the TOC rail (product homes).
 - `landing-page` — the TOC rail stays visible (section homes).
 
-`ms.topic` only takes effect on pages that also set a `layout` — without a layout
+`tsy.topic` only takes effect on pages that also set a `layout` — without a layout
 no `<article>` wrapper is emitted, so the attribute has nowhere to live.
 
 ## Artifacts

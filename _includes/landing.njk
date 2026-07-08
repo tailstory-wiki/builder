@@ -1,4 +1,4 @@
-<article class="doc-content"{% if pageTopic %} data-ms-topic="{{ pageTopic }}"{% endif %}>
+<article class="doc-content"{% if pageTopic %} data-tsy-topic="{{ pageTopic }}"{% endif %}>
 {% include "doc-header.njk" %}
 {{ content | safe }}
 {% set cardGroups = page.inputPath | landingCardGroups %}
