@@ -13,26 +13,26 @@ import {
 } from "@hyperjump/json-schema/draft-2020-12";
 import { BASIC } from "@hyperjump/json-schema/experimental";
 
-const contentDir = process.env.CONTENT_DIR;
-const outDir = process.env.OUT_DIR;
+const contentDirectory = process.env.CONTENT_DIR;
+const outputDirectory = process.env.OUT_DIR;
 const schemaPath = process.env.SCHEMA;
 
-if (!contentDir || !outDir || !schemaPath) {
+if (!contentDirectory || !outputDirectory || !schemaPath) {
     console.error("CONTENT_DIR, OUT_DIR and SCHEMA environment variables are required");
     process.exit(2);
 }
 
 async function main() {
-    const src = path.join(contentDir, "links.yaml");
+    const sourcePath = path.join(contentDirectory, "links.yaml");
     let yamlText;
     try {
-        yamlText = await readFile(src, "utf8");
-    } catch (err) {
-        if (err.code === "ENOENT") {
-            console.log(`no links.yaml found under ${contentDir}, skipping`);
+        yamlText = await readFile(sourcePath, "utf8");
+    } catch (error) {
+        if (error.code === "ENOENT") {
+            console.log(`no links.yaml found under ${contentDirectory}, skipping`);
             return;
         }
-        throw err;
+        throw error;
     }
 
     const schemaText = await readFile(schemaPath, "utf8");
@@ -44,29 +44,29 @@ async function main() {
     let data;
     try {
         data = parseYaml(yamlText);
-    } catch (err) {
-        console.error(`::error file=${src}::failed to parse YAML: ${err.message}`);
+    } catch (error) {
+        console.error(`::error file=${sourcePath}::failed to parse YAML: ${error.message}`);
         process.exit(1);
     }
 
     const result = validateLinks(data, BASIC);
     if (!result.valid) {
-        console.error(`::error file=${src}::links failed schema validation`);
-        for (const err of result.errors ?? []) {
+        console.error(`::error file=${sourcePath}::links failed schema validation`);
+        for (const validationError of result.errors ?? []) {
             console.error(
-                `  - ${err.absoluteKeywordLocation} at ${err.instanceLocation}`,
+                `  - ${validationError.absoluteKeywordLocation} at ${validationError.instanceLocation}`,
             );
         }
         process.exit(1);
     }
 
-    const dest = path.join(outDir, "links.json");
-    await mkdir(path.dirname(dest), { recursive: true });
-    await writeFile(dest, JSON.stringify(data, null, 2) + "\n");
-    console.log(`Built ${dest}`);
+    const destinationPath = path.join(outputDirectory, "links.json");
+    await mkdir(path.dirname(destinationPath), { recursive: true });
+    await writeFile(destinationPath, JSON.stringify(data, null, 2) + "\n");
+    console.log(`Built ${destinationPath}`);
 }
 
-main().catch((err) => {
-    console.error(err);
+main().catch((error) => {
+    console.error(error);
     process.exit(1);
 });

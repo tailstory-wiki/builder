@@ -49,10 +49,10 @@ export default function (eleventyConfig) {
     // page's `description` frontmatter and a site-absolute href.
     eleventyConfig.addFilter("landingCards", (inputPath) => {
         if (!inputPath) return [];
-        const dir = path.dirname(path.resolve(inputPath));
+        const directory = path.dirname(path.resolve(inputPath));
         let toc;
         try {
-            toc = parseYaml(readFileSync(path.join(dir, "toc.yaml"), "utf8"));
+            toc = parseYaml(readFileSync(path.join(directory, "toc.yaml"), "utf8"));
         } catch {
             return [];
         }
@@ -64,7 +64,7 @@ export default function (eleventyConfig) {
         );
 
         const currentSlug = path.basename(inputPath, ".md");
-        const relDir = relativeFromInput(dir);
+        const relativeDirectory = relativeFromInput(directory);
 
         const cards = [];
         for (const leaf of leaves) {
@@ -73,12 +73,12 @@ export default function (eleventyConfig) {
 
             let description = "";
             for (const candidate of [
-                path.join(dir, `${leaf.page}.md`),
-                path.join(dir, leaf.page, "index.md"),
+                path.join(directory, `${leaf.page}.md`),
+                path.join(directory, leaf.page, "index.md"),
             ]) {
                 try {
-                    const data = matter(readFileSync(candidate, "utf8")).data;
-                    if (typeof data.description === "string") description = data.description;
+                    const frontmatter = matter(readFileSync(candidate, "utf8")).data;
+                    if (typeof frontmatter.description === "string") description = frontmatter.description;
                     break;
                 } catch {
                     // Try the next candidate; a card without a target file
@@ -86,15 +86,15 @@ export default function (eleventyConfig) {
                 }
             }
 
-            const parts = [
+            const segments = [
                 vendor,
                 product,
-                relDir,
+                relativeDirectory,
                 leaf.page === "index" ? "" : leaf.page,
             ].filter(Boolean);
             cards.push({
                 title: leaf.title,
-                href: `/${parts.join("/")}`,
+                href: `/${segments.join("/")}`,
                 description,
             });
         }
