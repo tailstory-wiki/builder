@@ -1,14 +1,21 @@
-<article class="doc-content">
+<article class="doc-content"{% if pageTopic %} data-ms-topic="{{ pageTopic }}"{% endif %}>
 {% include "doc-header.njk" %}
 {{ content | safe }}
-{% set cards = page.inputPath | landingCards %}
-{% if cards and cards.length %}
-<nav class="card-grid" aria-label="Pages in this section">
-{% for card in cards %}
+{% set cardGroups = page.inputPath | landingCardGroups %}
+{% if cardGroups and cardGroups.length %}
+<nav class="card-groups" aria-label="Pages in this section">
+{% for group in cardGroups %}
+<section class="card-group">
+{% if group.heading %}<h2 class="card-group-title">{{ group.heading }}</h2>{% endif %}
+<div class="card-grid">
+{% for card in group.cards %}
 <a class="card" href="{{ card.href }}">
-<h2 class="card-title">{{ card.title }}</h2>
+<h3 class="card-title">{{ card.title }}</h3>
 {% if card.description %}<p class="card-desc">{{ card.description }}</p>{% endif %}
 </a>
+{% endfor %}
+</div>
+</section>
 {% endfor %}
 </nav>
 {% endif %}

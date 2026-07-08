@@ -15,6 +15,12 @@
                     { "$ref": "#/$defs/section" }
                 ]
             }
+        },
+        "tabs": {
+            "$comment": "Optional product navbar tabs, rendered in order by the worker from the product-root toc.json only; a tabs key in a nested directory's toc.yaml validates but is ignored. Omit the key entirely to render no tabs.",
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/leaf" }
         }
     },
     "$defs": {
