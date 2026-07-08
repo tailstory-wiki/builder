@@ -44,10 +44,21 @@ export default function (eleventyConfig) {
         }
     });
 
-    // Cards for landing.njk: the current directory's toc.yaml entries, minus
-    // the entry for the landing page itself, each enriched with the target
-    // page's `description` frontmatter and a site-absolute href.
-    eleventyConfig.addFilter("landingCards", (inputPath) => {
+    // "tsy.topic" is a literal dotted frontmatter key; Nunjucks cannot
+    // reference a dotted variable name, so expose the value to layouts as
+    // `pageTopic`. The outer function is required: addGlobalData invokes
+    // function values once at config time, and only the returned callback
+    // becomes the per-page computed value.
+    eleventyConfig.addGlobalData("eleventyComputed.pageTopic", () => {
+        return (data) => data["tsy.topic"] ?? "";
+    });
+
+    // Card groups for landing.njk: the current directory's toc.yaml entries,
+    // minus the entry for the landing page itself, each enriched with the
+    // target page's `description` frontmatter and a site-absolute href.
+    // {section, pages} entries become headed groups; consecutive plain leaves
+    // collect into heading-less groups, preserving authored order.
+    eleventyConfig.addFilter("landingCardGroups", (inputPath) => {
         if (!inputPath) return [];
         const directory = path.dirname(path.resolve(inputPath));
         let toc;
@@ -58,18 +69,12 @@ export default function (eleventyConfig) {
         }
         if (!toc || !Array.isArray(toc.entries)) return [];
 
-        // Flatten {section, pages} groups; the sidebar preserves grouping.
-        const leaves = toc.entries.flatMap((entry) =>
-            Array.isArray(entry?.pages) ? entry.pages : [entry],
-        );
-
         const currentSlug = path.basename(inputPath, ".md");
         const relativeDirectory = relativeFromInput(directory);
 
-        const cards = [];
-        for (const leaf of leaves) {
-            if (!leaf || typeof leaf.page !== "string" || typeof leaf.title !== "string") continue;
-            if (leaf.page === currentSlug) continue;
+        const buildCard = (leaf) => {
+            if (!leaf || typeof leaf.page !== "string" || typeof leaf.title !== "string") return null;
+            if (leaf.page === currentSlug) return null;
 
             let description = "";
             for (const candidate of [
@@ -92,13 +97,31 @@ export default function (eleventyConfig) {
                 relativeDirectory,
                 leaf.page === "index" ? "" : leaf.page,
             ].filter(Boolean);
-            cards.push({
+            return {
                 title: leaf.title,
                 href: `/${segments.join("/")}`,
                 description,
-            });
+            };
+        };
+
+        const groups = [];
+        for (const entry of toc.entries) {
+            if (Array.isArray(entry?.pages)) {
+                const cards = entry.pages.map(buildCard).filter(Boolean);
+                const heading = typeof entry.section === "string" ? entry.section : "";
+                if (cards.length > 0) groups.push({ heading, cards });
+                continue;
+            }
+            const card = buildCard(entry);
+            if (!card) continue;
+            const lastGroup = groups[groups.length - 1];
+            if (lastGroup && lastGroup.heading === "") {
+                lastGroup.cards.push(card);
+            } else {
+                groups.push({ heading: "", cards: [card] });
+            }
         }
-        return cards;
+        return groups;
     });
 
     eleventyConfig.addFilter("formatDate", (iso) => {
