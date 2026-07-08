@@ -4,11 +4,13 @@
     "type": "module",
     "scripts": {
         "build": "eleventy",
-        "build:tocs": "node scripts/build-tocs.mjs"
+        "build:tocs": "node scripts/build-tocs.mjs",
+        "build:links": "node scripts/build-links.mjs"
     },
     "devDependencies": {
         "@11ty/eleventy": "^3.1.6",
         "@hyperjump/json-schema": "^1.17.6",
+        "gray-matter": "^4.0.3",
         "markdown-it": "^14.2.0",
         "yaml": "^2.9.0"
     }

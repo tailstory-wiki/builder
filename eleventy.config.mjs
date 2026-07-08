@@ -1,11 +1,16 @@
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import path from "node:path";
+import matter from "gray-matter";
 import markdownIt from "markdown-it";
+import { parse as parseYaml } from "yaml";
 
 const inputDir = process.env.WIKI_INPUT_DIR || "docs";
 const docsRepo = process.env.WIKI_DOCS_REPO || "";
 const docsRef = process.env.WIKI_DOCS_REF || "main";
 const docsPath = process.env.WIKI_DOCS_PATH || "docs";
+const vendor = process.env.WIKI_VENDOR || "";
+const product = process.env.WIKI_PRODUCT || "";
 
 function relativeFromInput(inputPath) {
     return path.relative(path.resolve(inputDir), path.resolve(inputPath));
@@ -37,6 +42,63 @@ export default function (eleventyConfig) {
         } catch {
             return "";
         }
+    });
+
+    // Cards for landing.njk: the current directory's toc.yaml entries, minus
+    // the entry for the landing page itself, each enriched with the target
+    // page's `description` frontmatter and a site-absolute href.
+    eleventyConfig.addFilter("landingCards", (inputPath) => {
+        if (!inputPath) return [];
+        const directory = path.dirname(path.resolve(inputPath));
+        let toc;
+        try {
+            toc = parseYaml(readFileSync(path.join(directory, "toc.yaml"), "utf8"));
+        } catch {
+            return [];
+        }
+        if (!toc || !Array.isArray(toc.entries)) return [];
+
+        // Flatten {section, pages} groups; the sidebar preserves grouping.
+        const leaves = toc.entries.flatMap((entry) =>
+            Array.isArray(entry?.pages) ? entry.pages : [entry],
+        );
+
+        const currentSlug = path.basename(inputPath, ".md");
+        const relativeDirectory = relativeFromInput(directory);
+
+        const cards = [];
+        for (const leaf of leaves) {
+            if (!leaf || typeof leaf.page !== "string" || typeof leaf.title !== "string") continue;
+            if (leaf.page === currentSlug) continue;
+
+            let description = "";
+            for (const candidate of [
+                path.join(directory, `${leaf.page}.md`),
+                path.join(directory, leaf.page, "index.md"),
+            ]) {
+                try {
+                    const frontmatter = matter(readFileSync(candidate, "utf8")).data;
+                    if (typeof frontmatter.description === "string") description = frontmatter.description;
+                    break;
+                } catch {
+                    // Try the next candidate; a card without a target file
+                    // still renders, same trust model as the sidebar.
+                }
+            }
+
+            const segments = [
+                vendor,
+                product,
+                relativeDirectory,
+                leaf.page === "index" ? "" : leaf.page,
+            ].filter(Boolean);
+            cards.push({
+                title: leaf.title,
+                href: `/${segments.join("/")}`,
+                description,
+            });
+        }
+        return cards;
     });
 
     eleventyConfig.addFilter("formatDate", (iso) => {

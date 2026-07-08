@@ -1,0 +1,15 @@
+<article class="doc-content">
+{% include "doc-header.njk" %}
+{{ content | safe }}
+{% set cards = page.inputPath | landingCards %}
+{% if cards and cards.length %}
+<nav class="card-grid" aria-label="Pages in this section">
+{% for card in cards %}
+<a class="card" href="{{ card.href }}">
+<h2 class="card-title">{{ card.title }}</h2>
+{% if card.description %}<p class="card-desc">{{ card.description }}</p>{% endif %}
+</a>
+{% endfor %}
+</nav>
+{% endif %}
+</article>
