@@ -101,6 +101,13 @@ jobs:
           SCHEMA: ${{ github.workspace }}/builder/links-schema.json
         run: npm run build:links
 
+      - name: Build raw markdown
+        working-directory: builder
+        env:
+          CONTENT_DIR: ${{ github.workspace }}/content/${{ inputs.content_path }}
+          OUT_DIR: ${{ github.workspace }}/_site
+        run: npm run build:raw
+
       - name: Upload build artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

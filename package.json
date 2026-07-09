@@ -5,7 +5,8 @@
     "scripts": {
         "build": "eleventy",
         "build:tocs": "node scripts/build-tocs.mjs",
-        "build:links": "node scripts/build-links.mjs"
+        "build:links": "node scripts/build-links.mjs",
+        "build:raw": "node scripts/build-raw.mjs"
     },
     "devDependencies": {
         "@11ty/eleventy": "^3.1.6",
