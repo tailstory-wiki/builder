@@ -30,6 +30,18 @@ export default function (eleventyConfig) {
         return `https://github.com/${docsRepo}/blob/${docsRef}/${repoPath}`;
     });
 
+    // The worker's in-wiki URL for a page's raw Markdown source, mirroring the
+    // pretty-permalink scheme used for the rendered page: index.md maps to the
+    // directory root, every other foo.md to foo, with ".md" appended.
+    eleventyConfig.addFilter("markdownUrl", (inputPath) => {
+        if (!vendor || !product || !inputPath) return "";
+        let slug = relativeFromInput(inputPath).replace(/\.md$/, "");
+        if (slug === "index") slug = "";
+        else if (slug.endsWith("/index")) slug = slug.slice(0, -"/index".length);
+        const segments = [vendor, product, slug].filter(Boolean);
+        return `/${segments.join("/")}.md`;
+    });
+
     eleventyConfig.addFilter("lastUpdated", (inputPath) => {
         if (!inputPath) return "";
         try {
